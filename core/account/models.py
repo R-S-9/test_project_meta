@@ -1,12 +1,18 @@
+import uuid
+
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.core.validators import MinLengthValidator
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, full_name, email, password=None, is_active=False):
+    def create_user(self, full_name, email, password):
         if not email:
             raise ValueError('User must have an email address')
+        if not full_name:
+            raise ValueError('User must have an full_name')
+        if not password:
+            raise ValueError('User must have an password')
 
         user = self.model(
             email=self.normalize_email(email),
@@ -30,13 +36,22 @@ class UserManager(BaseUserManager):
             full_name=full_name, email=email, password=password
         )
         user.is_admin = True
+        user.is_active = True
         user.save()
 
         return user
 
+    def get_or_none(self, **kwargs):
+        try:
+            return self.get(**kwargs)
+        except self.model.DoesNotExist:
+            return None
+
 
 class UserProfile(AbstractBaseUser):
     objects = UserManager()
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     full_name = models.CharField(max_length=255, unique=False, default="")
     email = models.EmailField(max_length=255, unique=True)
     password = models.CharField(
