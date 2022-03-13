@@ -99,3 +99,5 @@ STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'account.UserProfile'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_USE_TLS = True
